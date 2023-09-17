@@ -1,0 +1,56 @@
+To turn this into an API that can be accessed programmatically over the internet, you would need to make some modifications:
+
+Expose as an API: Instead of rendering HTML templates and returning web pages, you would configure Flask to return JSON responses. This would involve modifying the Flask routes to handle JSON data input and output.
+
+Implement RESTful Endpoints: Design and implement RESTful endpoints (e.g., using Flask's @app.route decorators) for specific API actions, such as sending an SMS message for classification and receiving the classification result as JSON.
+
+Authentication and Security: Implement authentication and security measures to protect your API from unauthorized access and potential attacks.
+
+Deployment: Deploy your API to a server or cloud platform to make it accessible over the internet.
+
+API Documentation: Provide clear documentation for the API endpoints, request parameters, and response formats.
+
+Here's a simplified example of how you can modify the existing code to make it return JSON responses instead of rendering HTML templates:
+
+from flask import Flask, request, jsonify
+import joblib  # For loading the pre-trained model
+import re  # For text preprocessing
+
+app = Flask(__name__)
+
+# Load the pre-trained machine learning model
+model = joblib.load('smishing_detection_model.pkl')
+
+# Define a function to preprocess the SMS message
+def preprocess_sms(text):
+    # Example: You may want to perform text preprocessing steps like removing special characters, stopwords, etc.
+    # For simplicity, we'll just lowercase the text and remove extra whitespaces.
+    text = text.lower()
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+@app.route('/detect', methods=['POST'])
+def detect():
+    data = request.get_json()
+    if 'sms_message' not in data:
+        return jsonify({'error': 'Missing "sms_message" field in the request'}), 400
+    
+    sms_message = data['sms_message']
+    
+    # Preprocess the SMS message
+    preprocessed_sms = preprocess_sms(sms_message)
+    
+    # Make predictions using the pre-trained model
+    prediction = model.predict([preprocessed_sms])[0]
+    
+    result = "Smishing" if prediction == 1 else "Legitimate"
+    
+    return jsonify({'result': result})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+With these modifications, your Flask application would be more suitable for use as an API. You can send POST requests with JSON data containing an SMS message, and the API will respond with a JSON object containing the classification result.
+
+To deploy this API for production use, you would typically choose a hosting solution, configure a web server (e.g., Gunicorn), and potentially set up a reverse proxy and domain name for accessibility over the internet. Additionally, consider implementing security measures, such as rate limiting and authentication, to protect the API from abuse and unauthorized access.
