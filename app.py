@@ -11,7 +11,7 @@ nltk.download('stopwords')
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/phish'
+app.config['SQLALCHEMY_DATABASE_URI'] = ' postgres://svhdlzohobijyf:a4a550d38dade252e168cc604ad39ff6d62eb2182ed044a516a0508534b932ec@ec2-34-236-103-63.compute-1.amazonaws.com:5432/dc2pt2a1jjid8l'
 
 db = SQLAlchemy(app)
 
